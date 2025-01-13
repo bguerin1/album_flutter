@@ -1,9 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:album_flutter/AppBar/appbar.dart';
+import 'package:album_flutter/CustomIcons.dart';
+import 'package:json_theme/json_theme.dart';
+import 'package:flutter/services.dart';
+import 'dart:convert';
 
-void main() {
-  runApp(const MyApp());
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final themeStr = await rootBundle.loadString('assets/ThemeAlbum.json');
+
+  final themeJson = jsonDecode(themeStr);
+
+  final theme = ThemeDecoder.decodeThemeData(themeJson)!;
+
+  runApp(MyApp(theme : theme));
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -13,6 +27,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Album',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -57,6 +72,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  int currentPageIndex = 1;
 
   void _incrementCounter() {
     setState(() {
@@ -78,17 +94,22 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        actions: <Widget>[
+      appBar: AppBarPrincipal(
+        title: "Gestion des albums",
+        actions: [
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
 
-        ]
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.lightbulb),
+            onPressed: () {
+
+            },
+          ),
+        ],
       ),
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
@@ -119,11 +140,35 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
+
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,
         tooltip: 'Increment',
         child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),
+
+      bottomNavigationBar: NavigationBar(
+        onDestinationSelected: (int index) {
+          setState(() {
+            currentPageIndex = index;
+          });
+        },
+        selectedIndex: currentPageIndex,
+        destinations: const <Widget>[
+          NavigationDestination(
+            icon: Icon(CustomIcons.home) ,
+            label: "Accueil",
+          ),
+          NavigationDestination(
+            icon: Icon(CustomIcons.note_beamed),
+            label: "Page suivante",
+          ),
+          NavigationDestination(
+            icon: Icon(CustomIcons.settings),
+            label: "Paramètres",
+          ),
+        ],
+      ),// This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
