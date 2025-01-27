@@ -20,7 +20,7 @@ class AppBarPrincipalState extends State<AppBarPrincipal> {
     return AppBar(
       title: Text(widget.title, style: TextStyle(color: Colors.white)),
       actions: widget.actions,
-      backgroundColor: Colors.green,
+
     );
   }
 }

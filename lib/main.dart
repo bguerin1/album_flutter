@@ -4,6 +4,7 @@ import 'package:album_flutter/CustomIcons.dart';
 import 'package:json_theme/json_theme.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
+import 'package:album_flutter/ThemeController.dart';
 
 
 Future<void> main() async {
@@ -15,45 +16,49 @@ Future<void> main() async {
 
   final theme = ThemeDecoder.decodeThemeData(themeJson)!;
 
-  runApp(MyApp(theme : theme));
+  // Dark
+
+  final themeStrD = await rootBundle.loadString('assets/ThemeAlbumDark.json');
+
+  final themeJsonD = jsonDecode(themeStrD);
+
+  final themeD = ThemeDecoder.decodeThemeData(themeJsonD)!;
+
+
+  runApp(MyApp(theme : theme, themeDark : themeD));
 }
 
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final ThemeData theme;
+  final ThemeData themeDark;
+  final themeController = ThemeController();
+
+  MyApp({Key? key, required this.theme, required this.themeDark}) : super(key: key);
+
+
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Album',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(title: 'Album'),
+    return ValueListenableBuilder<ThemeMode> (
+      valueListenable: themeController,
+      builder: (context,themeMode, _) {
+
+        return MaterialApp(
+          title: 'Album',
+          debugShowCheckedModeBanner: false,
+          theme: theme,
+          darkTheme : themeDark,
+          home: const MyHomePage(title: 'Album'),
+        );
+      },
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  const MyHomePage({super.key, required this.title, required});
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -73,6 +78,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   int currentPageIndex = 1;
+
 
   void _incrementCounter() {
     setState(() {
@@ -106,7 +112,7 @@ class _MyHomePageState extends State<MyHomePage> {
           IconButton(
             icon: Icon(Icons.lightbulb),
             onPressed: () {
-
+              themeController.toggleTheme();
             },
           ),
         ],
